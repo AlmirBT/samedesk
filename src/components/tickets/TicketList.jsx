@@ -1,38 +1,53 @@
 import { useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Pin } from 'lucide-react'
+import { Search, Pin, SlidersHorizontal } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
 import TicketCard from './TicketCard'
 import DensityToggle from './DensityToggle'
-
-const statusFilters = [
-  { key: 'all', label: 'Все' },
-  { key: 'open', label: 'Открытые' },
-  { key: 'in_progress', label: 'В работе' },
-  { key: 'closed', label: 'Закрытые' },
-]
+import FilterPanel from './FilterPanel'
 
 export default function TicketList({ tickets, selectedId, onSelect }) {
+  const navigate = useNavigate()
   const {
     pinnedTicketIds, togglePinTicket,
     ticketDensityMode, setTicketDensityMode,
     savedFilters, setSavedFilters,
     selectedTicketIds, toggleTicketSelection,
+    tags,
   } = useApp()
 
-  const search = savedFilters.search
-  const statusFilter = savedFilters.status
+  const search = savedFilters.search || ''
+  const { statuses = [], platforms = [], departments = [] } = savedFilters
 
   const setSearch = (val) => setSavedFilters(prev => ({ ...prev, search: val }))
-  const setStatusFilter = (val) => setSavedFilters(prev => ({ ...prev, status: val }))
 
   const bulkMode = selectedTicketIds.size > 0
 
   const { pinned, unpinned } = useMemo(() => {
     let result = tickets
-    if (statusFilter !== 'all') {
-      result = result.filter(t => t.status === statusFilter)
+
+    // Multi-select status filter
+    if (statuses.length > 0) {
+      result = result.filter(t => statuses.includes(t.status))
     }
+
+    // Platform filter
+    if (platforms.length > 0) {
+      result = result.filter(t => platforms.includes(t.platform))
+    }
+
+    // Department filter
+    if (departments.length > 0) {
+      result = result.filter(t =>
+        t.tags.some(tagName => {
+          const tag = tags.find(tg => tg.name === tagName)
+          return tag?.roles?.some(r => departments.includes(r))
+        })
+      )
+    }
+
+    // Search filter
     if (search) {
       const q = search.toLowerCase()
       result = result.filter(t =>
@@ -51,7 +66,7 @@ export default function TicketList({ tickets, selectedId, onSelect }) {
     const unpinnedItems = sorted.filter(t => !pinnedTicketIds.includes(t.id))
 
     return { pinned: pinnedItems, unpinned: unpinnedItems }
-  }, [tickets, statusFilter, search, pinnedTicketIds])
+  }, [tickets, statuses, platforms, departments, search, pinnedTicketIds, tags])
 
   const renderCard = (ticket, i) => (
     <motion.div
@@ -89,25 +104,18 @@ export default function TicketList({ tickets, selectedId, onSelect }) {
             className="w-full bg-bg-card border border-border rounded-lg pl-8 pr-3 py-2 text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:border-red-primary/50 transition-colors"
           />
         </div>
+        <button
+          onClick={() => navigate('/tickets/search')}
+          className="p-2 rounded-lg border border-border hover:bg-bg-hover hover:border-red-primary/30 transition-colors cursor-pointer shrink-0"
+          title="Расширенный поиск"
+        >
+          <SlidersHorizontal size={14} className="text-text-muted" />
+        </button>
         <DensityToggle value={ticketDensityMode} onChange={setTicketDensityMode} />
       </div>
 
-      {/* Status tabs */}
-      <div className="flex gap-1 p-3 border-b border-border">
-        {statusFilters.map(f => (
-          <button
-            key={f.key}
-            onClick={() => setStatusFilter(f.key)}
-            className={`px-3 py-1.5 text-xs rounded-lg transition-colors cursor-pointer ${
-              statusFilter === f.key
-                ? 'bg-red-primary/15 text-red-light'
-                : 'text-text-muted hover:text-text-secondary hover:bg-bg-hover'
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
+      {/* Checklist Filters */}
+      <FilterPanel tickets={tickets} />
 
       {/* List */}
       <div className="flex-1 overflow-y-auto p-2 space-y-1">

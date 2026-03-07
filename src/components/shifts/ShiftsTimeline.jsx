@@ -65,7 +65,7 @@ export default function ShiftsTimeline({ shifts, isToday }) {
                 <div
                   className="relative flex-1 h-full"
                   style={{
-                    backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 55px, rgba(42,42,42,0.3) 55px, rgba(42,42,42,0.3) 56px)',
+                    backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 55px, var(--timeline-grid) 55px, var(--timeline-grid) 56px)',
                   }}
                 >
                   {memberShifts.map((shift, si) => (

@@ -11,6 +11,8 @@ import Tags from './pages/Tags'
 import Shifts from './pages/Shifts'
 import SettingsPage from './pages/Settings'
 import Stats from './pages/Stats'
+import AdvancedSearch from './pages/AdvancedSearch'
+import Incidents from './pages/Incidents'
 
 export default function App() {
   return (
@@ -20,6 +22,9 @@ export default function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/tickets" element={<Tickets />} />
+          <Route path="/tickets/search" element={<AdvancedSearch />} />
+          <Route path="/tickets/:ticketId" element={<Tickets />} />
+          <Route path="/incidents" element={<Incidents />} />
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/users" element={<UsersPage />} />
           <Route path="/roles" element={<Roles />} />

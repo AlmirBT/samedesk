@@ -77,9 +77,10 @@ export const tickets = [
     messages: [
       { id: 'msg_001', ticketId: 'TKT-001', from: 'player', text: 'Привет! Помогите пожалуйста, меня взломали!', attachments: [], timestamp: '2025-01-15T10:30:00', isInternal: false },
       { id: 'msg_002', ticketId: 'TKT-001', from: 'staff', text: 'Здравствуйте! Опишите подробнее, что произошло.', attachments: [], timestamp: '2025-01-15T10:32:00', isInternal: false },
-      { id: 'msg_003', ticketId: 'TKT-001', from: 'player', text: 'Я зашёл на сервер, а у меня все вещи пропали. Кто-то украл мой аккаунт!', attachments: [], timestamp: '2025-01-15T10:33:00', isInternal: false },
-      { id: 'msg_004', ticketId: 'TKT-001', from: 'staff', text: 'Проверяю логи входа по IP...', attachments: [], timestamp: '2025-01-15T10:35:00', isInternal: true },
-      { id: 'msg_005', ticketId: 'TKT-001', from: 'player', text: 'Помогите, меня взломали и украли все вещи!', attachments: [], timestamp: '2025-01-15T10:40:00', isInternal: false },
+      { id: 'msg_003', ticketId: 'TKT-001', from: 'player', text: 'Я зашёл на сервер, а у меня все вещи пропали. Думаю это сделал DragonSlayer, он крутился рядом с моей базой.', attachments: [], timestamp: '2025-01-15T10:33:00', isInternal: false },
+      { id: 'msg_004', ticketId: 'TKT-001', from: 'staff', text: 'Проверил логи — последний вход был с другого IP. Возможно, это связано с ShadowNinja, он тоже заходил в этот район.', attachments: [], timestamp: '2025-01-15T10:35:00', isInternal: true },
+      { id: 'msg_005', ticketId: 'TKT-001', from: 'staff', text: 'Мы проверим активность DragonSlayer и ShadowNinja в районе вашей базы. Ожидайте.', attachments: [], timestamp: '2025-01-15T10:38:00', isInternal: false },
+      { id: 'msg_006', ticketId: 'TKT-001', from: 'player', text: 'Спасибо! Ещё CreeperHunter видел кого-то подозрительного, можете у него спросить.', attachments: [], timestamp: '2025-01-15T10:40:00', isInternal: false },
     ],
   },
   {
@@ -122,8 +123,10 @@ export const tickets = [
     createdAt: '2025-01-15T11:00:00', lastMessage: 'Игрок XxDestroyerxX использует читы',
     unread: true,
     messages: [
-      { id: 'msg_040', ticketId: 'TKT-005', from: 'player', text: 'Игрок XxDestroyerxX использует читы! Он летает и бьёт через стены!', attachments: [], timestamp: '2025-01-15T11:00:00', isInternal: false },
+      { id: 'msg_040', ticketId: 'TKT-005', from: 'player', text: 'Игрок XxDestroyerxX использует читы! Он летает и бьёт через стены! Я был вместе с Murka и DragonSlayer, они тоже это видели.', attachments: [], timestamp: '2025-01-15T11:00:00', isInternal: false },
       { id: 'msg_041', ticketId: 'TKT-005', from: 'bot', text: 'Ваше обращение принято. Ожидайте ответа сотрудника.', attachments: [], timestamp: '2025-01-15T11:00:01', isInternal: false },
+      { id: 'msg_042', ticketId: 'TKT-005', from: 'staff', text: 'Спасибо за репорт! Свяжемся с Murka и DragonSlayer для подтверждения. PixelMaster тоже недавно жаловался на этого игрока.', attachments: [], timestamp: '2025-01-15T11:10:00', isInternal: false },
+      { id: 'msg_043', ticketId: 'TKT-005', from: 'staff', text: 'По логам CreeperHunter тоже пересекался с этим читером вчера. Нужно собрать показания.', attachments: [], timestamp: '2025-01-15T11:12:00', isInternal: true },
     ],
   },
   {
@@ -414,6 +417,50 @@ export const playerProfiles = [
     totalTickets: 1, serverStats: { playTime: '34h', lastSeen: '2 дня назад', joinDate: '25.12.2024' },
     recentTickets: [
       { id: 'TKT-013', subject: 'Где рынок', status: 'closed' },
+    ],
+  },
+]
+
+// ==================== INCIDENTS ====================
+export const incidents = [
+  {
+    id: 'INC-001',
+    name: 'Массовый гриф 15.01',
+    description: 'Группа игроков разрушила постройки в зоне спавна и на нескольких базах. Затронуто более 10 игроков.',
+    severity: 'critical',
+    status: 'active',
+    createdAt: '2025-01-15T06:00:00',
+    createdBy: 'staff_1',
+    linkedTicketIds: ['TKT-001', 'TKT-003', 'TKT-005', 'TKT-010'],
+    broadcastLog: [
+      { id: 'bc_001', text: 'Мы в курсе проблемы с разрушением построек. Ведётся расследование.', sentAt: '2025-01-15T07:00:00', sentBy: 'staff_1', ticketCount: 4 },
+    ],
+  },
+  {
+    id: 'INC-002',
+    name: 'Дюп алмазов',
+    description: 'Обнаружен баг с дюпликацией алмазов через крафт-стол. Экономика сервера под угрозой.',
+    severity: 'high',
+    status: 'active',
+    createdAt: '2025-01-14T18:00:00',
+    createdBy: 'staff_3',
+    linkedTicketIds: ['TKT-002', 'TKT-008'],
+    broadcastLog: [
+      { id: 'bc_010', text: 'Баг с дюпликацией найден и передан разработчикам. Алмазы будут откачены.', sentAt: '2025-01-14T19:30:00', sentBy: 'staff_3', ticketCount: 2 },
+    ],
+  },
+  {
+    id: 'INC-003',
+    name: 'DDoS атака 12.01',
+    description: 'Серия DDoS атак на игровые сервера, вызвавшая лаги и дисконнекты у всех игроков.',
+    severity: 'critical',
+    status: 'resolved',
+    createdAt: '2025-01-12T03:00:00',
+    createdBy: 'staff_1',
+    linkedTicketIds: ['TKT-006', 'TKT-007', 'TKT-009', 'TKT-011', 'TKT-012'],
+    broadcastLog: [
+      { id: 'bc_020', text: 'Сервер подвергся DDoS-атаке. Мы работаем над восстановлением.', sentAt: '2025-01-12T03:30:00', sentBy: 'staff_1', ticketCount: 5 },
+      { id: 'bc_021', text: 'Защита установлена, сервер стабилизирован. Приносим извинения за неудобства.', sentAt: '2025-01-12T08:00:00', sentBy: 'staff_1', ticketCount: 5 },
     ],
   },
 ]

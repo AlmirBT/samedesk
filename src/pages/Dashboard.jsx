@@ -25,7 +25,9 @@ const CustomTooltip = ({ active, payload, label }) => {
 }
 
 export default function Dashboard() {
-  const { tickets, staff, shifts, tasks } = useApp()
+  const { tickets, staff, shifts, tasks, theme } = useApp()
+  const chartGrid = theme === 'light' ? '#E8E8E8' : '#2A2A2A'
+  const chartAxis = theme === 'light' ? '#9CA3AF' : '#4A5568'
 
   const openTickets = tickets.filter(t => t.status === 'open').length
   const todayTasks = tasks.filter(t => t.status !== 'completed').length
@@ -79,9 +81,9 @@ export default function Dashboard() {
                     <stop offset="100%" stopColor="#48BB78" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#2A2A2A" />
-                <XAxis dataKey="day" stroke="#4A5568" fontSize={12} tickLine={false} />
-                <YAxis stroke="#4A5568" fontSize={12} tickLine={false} axisLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke={chartGrid} />
+                <XAxis dataKey="day" stroke={chartAxis} fontSize={12} tickLine={false} />
+                <YAxis stroke={chartAxis} fontSize={12} tickLine={false} axisLine={false} />
                 <Tooltip content={<CustomTooltip />} />
                 <Area type="monotone" dataKey="tickets" name="Обращения" stroke="#E53E3E" strokeWidth={2} fill="url(#redGrad)" dot={{ fill: '#E53E3E', r: 3 }} activeDot={{ r: 5, fill: '#FC8181' }} />
                 <Area type="monotone" dataKey="resolved" name="Решено" stroke="#48BB78" strokeWidth={2} fill="url(#greenGrad)" dot={{ fill: '#48BB78', r: 3 }} activeDot={{ r: 5, fill: '#68D391' }} />

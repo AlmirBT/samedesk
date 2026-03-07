@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Bell, ChevronDown } from 'lucide-react'
+import { Search, Bell, ChevronDown, Sun, Moon } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
 import Avatar from '../ui/Avatar'
 import Badge from '../ui/Badge'
 
 export default function TopBar({ title, onSearchClick }) {
-  const { currentUser, notifications, markNotificationRead, logout } = useApp()
+  const { currentUser, notifications, markNotificationRead, logout, theme, setTheme } = useApp()
   const [showNotifications, setShowNotifications] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
 
@@ -27,6 +27,22 @@ export default function TopBar({ title, onSearchClick }) {
           <Search size={16} />
           <span className="flex-1 text-left">Поиск...</span>
           <kbd className="px-1.5 py-0.5 text-[10px] bg-bg-hover rounded border border-border">Ctrl+K</kbd>
+        </button>
+
+        {/* Theme toggle */}
+        <button
+          onClick={() => setTheme(prev => prev === 'dark' ? 'light' : 'dark')}
+          className="p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-hover transition-colors cursor-pointer"
+          title={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
+        >
+          <motion.div
+            key={theme}
+            initial={{ rotate: -90, opacity: 0 }}
+            animate={{ rotate: 0, opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+          </motion.div>
         </button>
 
         {/* Notifications */}

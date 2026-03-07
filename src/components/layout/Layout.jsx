@@ -15,6 +15,7 @@ export const useLayoutToast = () => useContext(ToastContext)
 const pageTitles = {
   '/': 'Дашборд',
   '/tickets': 'Обращения',
+  '/incidents': 'Инциденты',
   '/tasks': 'Задачи',
   '/users': 'Пользователи',
   '/roles': 'Роли',
@@ -40,10 +41,6 @@ export default function Layout() {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
-  }
 
   const title = pageTitles[location.pathname] || 'FunTime HelpDesk'
 

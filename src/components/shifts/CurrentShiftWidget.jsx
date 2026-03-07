@@ -36,11 +36,11 @@ export default function CurrentShiftWidget({ shift }) {
       animate={{ opacity: 1, y: 0 }}
       className="rounded-xl p-4 border-l-4 border-l-red-primary"
       style={{
-        background: 'linear-gradient(135deg, #1A0A0A, #1E1010)',
+        background: 'var(--shift-bg)',
         boxShadow: '0 0 30px rgba(229,62,62,0.08), inset 0 1px 0 rgba(255,255,255,0.03)',
-        border: '1px solid rgba(42,42,42,0.8)',
+        border: `1px solid var(--shift-border)`,
         borderLeftWidth: '4px',
-        borderLeftColor: '#E53E3E',
+        borderLeftColor: 'var(--red-primary)',
       }}
     >
       <div className="flex flex-col lg:flex-row lg:items-center gap-4">
@@ -81,7 +81,7 @@ export default function CurrentShiftWidget({ shift }) {
         <div className="flex items-center gap-4 lg:min-w-[300px] lg:justify-end">
           <div className="flex -space-x-2">
             {staffMembers.map(s => (
-              <Avatar key={s.id} nick={s.login} size="sm" status={s.status} className="ring-2 ring-[#1A0A0A]" />
+              <Avatar key={s.id} nick={s.login} size="sm" status={s.status} className="ring-2" style={{ '--tw-ring-color': 'var(--shift-ring)' }} />
             ))}
           </div>
 

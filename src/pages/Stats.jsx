@@ -38,8 +38,10 @@ const CustomTooltip = ({ active, payload, label }) => {
 }
 
 export default function Stats() {
-  const { staff } = useApp()
+  const { staff, theme } = useApp()
   const [period, setPeriod] = useState('7d')
+  const chartGrid = theme === 'light' ? '#E8E8E8' : '#2A2A2A'
+  const chartAxis = theme === 'light' ? '#9CA3AF' : '#4A5568'
 
   const avgTickets = Math.round(staff.reduce((a, s) => a + s.stats.totalTickets, 0) / staff.length)
   const avgTime = Math.round(staff.reduce((a, s) => a + s.stats.avgResponseTime, 0) / staff.length)
@@ -125,9 +127,9 @@ export default function Stats() {
             <h3 className="text-sm font-heading font-semibold mb-4">Обращения по дням</h3>
             <ResponsiveContainer width="100%" height={240}>
               <LineChart data={weeklyStats}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#2A2A2A" />
-                <XAxis dataKey="day" stroke="#4A5568" fontSize={12} tickLine={false} />
-                <YAxis stroke="#4A5568" fontSize={12} tickLine={false} axisLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke={chartGrid} />
+                <XAxis dataKey="day" stroke={chartAxis} fontSize={12} tickLine={false} />
+                <YAxis stroke={chartAxis} fontSize={12} tickLine={false} axisLine={false} />
                 <Tooltip content={<CustomTooltip />} />
                 <Line type="monotone" dataKey="tickets" name="Обращения" stroke="#E53E3E" strokeWidth={2} dot={{ fill: '#E53E3E', r: 3 }} />
                 <Line type="monotone" dataKey="resolved" name="Решено" stroke="#48BB78" strokeWidth={2} dot={{ fill: '#48BB78', r: 3 }} />
@@ -141,9 +143,9 @@ export default function Stats() {
             <h3 className="text-sm font-heading font-semibold mb-4">Обращения по сотрудникам</h3>
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={staffBarData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#2A2A2A" />
-                <XAxis dataKey="name" stroke="#4A5568" fontSize={11} tickLine={false} />
-                <YAxis stroke="#4A5568" fontSize={12} tickLine={false} axisLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke={chartGrid} />
+                <XAxis dataKey="name" stroke={chartAxis} fontSize={11} tickLine={false} />
+                <YAxis stroke={chartAxis} fontSize={12} tickLine={false} axisLine={false} />
                 <Tooltip content={<CustomTooltip />} />
                 <Bar dataKey="tickets" name="Всего" fill="#E53E3E" radius={[4, 4, 0, 0]} />
               </BarChart>

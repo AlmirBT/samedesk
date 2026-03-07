@@ -26,7 +26,7 @@ export default function TicketCard({ ticket, isSelected, onClick, density = 'nor
       className={`group relative pl-3 rounded-xl cursor-pointer transition-all ${
         isSelected
           ? 'bg-red-primary/10 border border-red-primary/30 shadow-[0_0_12px_rgba(229,62,62,0.1)]'
-          : 'bg-bg-card/50 border border-transparent hover:bg-bg-hover hover:border-border hover:shadow-[0_4px_12px_rgba(0,0,0,0.3)]'
+          : 'bg-bg-card/50 border border-transparent hover:bg-bg-hover hover:border-border hover:shadow-[0_4px_12px_var(--card-shadow)]'
       } ${density === 'compact' ? 'py-1.5 pr-2' : 'p-3'}`}
       whileHover={{ y: -2 }}
       transition={{ duration: 0.15 }}

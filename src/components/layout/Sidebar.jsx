@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, MessageSquare, ListTodo, Users, Shield,
-  Tag, Clock, Settings, BarChart3, LogOut, ChevronLeft, ChevronRight,
+  Tag, Clock, Settings, BarChart3, LogOut, ChevronLeft, ChevronRight, AlertTriangle,
 } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
 import Avatar from '../ui/Avatar'
@@ -15,22 +15,23 @@ const navSections = [
     items: [
       { to: '/', icon: LayoutDashboard, label: 'Дашборд', shortcut: '1' },
       { to: '/tickets', icon: MessageSquare, label: 'Обращения', badge: true, shortcut: '2' },
-      { to: '/tasks', icon: ListTodo, label: 'Задачи', shortcut: '3' },
+      { to: '/incidents', icon: AlertTriangle, label: 'Инциденты', shortcut: '3' },
+      { to: '/tasks', icon: ListTodo, label: 'Задачи', shortcut: '4' },
     ],
   },
   {
     title: 'Управление',
     items: [
-      { to: '/users', icon: Users, label: 'Пользователи', shortcut: '4' },
-      { to: '/roles', icon: Shield, label: 'Роли', shortcut: '5' },
-      { to: '/tags', icon: Tag, label: 'Теги', shortcut: '6' },
-      { to: '/shifts', icon: Clock, label: 'Смены', shortcut: '7' },
+      { to: '/users', icon: Users, label: 'Пользователи', shortcut: '5' },
+      { to: '/roles', icon: Shield, label: 'Роли', shortcut: '6' },
+      { to: '/tags', icon: Tag, label: 'Теги', shortcut: '7' },
+      { to: '/shifts', icon: Clock, label: 'Смены', shortcut: '8' },
     ],
   },
   {
     title: 'Система',
     items: [
-      { to: '/stats', icon: BarChart3, label: 'Статистика', shortcut: '8' },
+      { to: '/stats', icon: BarChart3, label: 'Статистика', shortcut: '9' },
       { to: '/settings', icon: Settings, label: 'Настройки' },
     ],
   },
@@ -69,7 +70,7 @@ export default function Sidebar() {
     const handleKeyDown = (e) => {
       if (!e.ctrlKey && !e.metaKey) return
       const num = parseInt(e.key)
-      if (num >= 1 && num <= 8) {
+      if (num >= 1 && num <= 9) {
         for (const section of navSections) {
           const item = section.items.find(i => i.shortcut === String(num))
           if (item) {

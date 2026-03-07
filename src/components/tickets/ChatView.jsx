@@ -1,11 +1,16 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Send, BookOpen, ArrowDown, Check, X } from 'lucide-react'
+import { Send, BookOpen, ArrowDown, Check, X, Zap, Pin } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
 import ChatBubble from './ChatBubble'
 import QuickReplyModal from './QuickReplyModal'
 import InlineQuickReply from './InlineQuickReply'
 import ContextToolbar from './ContextToolbar'
+import ActiveViewers from './ActiveViewers'
+import QuickModeToggle from './QuickModeToggle'
+import ReplyPreview from './ReplyPreview'
+import ForwardMessageModal from './ForwardMessageModal'
 import Avatar from '../ui/Avatar'
 import PlatformIcon from '../ui/PlatformIcon'
 import Button from '../ui/Button'
@@ -37,10 +42,11 @@ function TypingIndicator() {
   )
 }
 
-export default function ChatView({ ticket, onOpenPlayerDrawer }) {
-  const { addMessage, updateTicketStatus, currentUser } = useApp()
+export default function ChatView({ ticket, onOpenPlayerDrawer, onCloseTicket, highlightMessageId }) {
+  const { addMessage, updateTicketStatus, currentUser, activeViewers, viewTicket, leaveTicket, quickMode, setQuickMode, getNextPriorityTicket, pinnedTicketIds } = useApp()
+  const navigate = useNavigate()
+  const [, setSearchParams] = useSearchParams()
   const [text, setText] = useState('')
-  const [showInternal, setShowInternal] = useState(false)
   const [showQuickReply, setShowQuickReply] = useState(false)
   const [showTyping, setShowTyping] = useState(false)
   const [showScrollBtn, setShowScrollBtn] = useState(false)
@@ -49,12 +55,41 @@ export default function ChatView({ ticket, onOpenPlayerDrawer }) {
   const [slashQuery, setSlashQuery] = useState(null)
   const [quotedText, setQuotedText] = useState(null)
   const [newMsgId, setNewMsgId] = useState(null)
-  const [takeWorkFlash, setTakeWorkFlash] = useState(false)
+  const [replyToMessage, setReplyToMessage] = useState(null)
+  const [forwardMessage, setForwardMessage] = useState(null)
   const messagesEndRef = useRef(null)
   const scrollContainerRef = useRef(null)
   const textareaRef = useRef(null)
 
-  const messages = ticket.messages.filter(m => showInternal ? m.isInternal : !m.isInternal)
+  // Pinned tickets show only internal (staff-only) chat
+  const isPinned = pinnedTicketIds.includes(ticket.id)
+
+  // Show all messages or only internal for pinned tickets
+  const messages = isPinned
+    ? ticket.messages.filter(m => m.isInternal)
+    : ticket.messages
+
+  // Detect ! prefix for internal mode (pinned = always internal)
+  const isInternalMode = isPinned || text.startsWith('!')
+
+  // Active viewers management
+  useEffect(() => {
+    viewTicket(ticket.id)
+    return () => leaveTicket(ticket.id)
+  }, [ticket.id, viewTicket, leaveTicket])
+
+  // Message anchor highlight
+  useEffect(() => {
+    if (!highlightMessageId) return
+    const el = document.querySelector(`[data-msg-id="${highlightMessageId}"]`)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+    const timer = setTimeout(() => {
+      setSearchParams({}, { replace: true })
+    }, 2500)
+    return () => clearTimeout(timer)
+  }, [highlightMessageId, setSearchParams])
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -82,19 +117,25 @@ export default function ChatView({ ticket, onOpenPlayerDrawer }) {
 
   const handleSend = () => {
     if (!text.trim()) return
+    const internal = isPinned || text.startsWith('!')
+    const msgText = (!isPinned && text.startsWith('!')) ? text.slice(1).trim() : text.trim()
+    if (!msgText) return
     const msgId = `msg_${Date.now()}`
     addMessage(ticket.id, {
       id: msgId,
       ticketId: ticket.id,
       from: 'staff',
-      text: text.trim(),
+      text: msgText,
       attachments: [],
       timestamp: new Date().toISOString(),
-      isInternal: showInternal,
-      quotedMessage: quotedText,
+      isInternal: internal,
+      quotedMessage: quotedText || undefined,
+      replyToMessageId: replyToMessage?.id || undefined,
+      replyToMessage: replyToMessage ? { from: replyToMessage.from, text: replyToMessage.text } : undefined,
     })
     setText('')
     setQuotedText(null)
+    setReplyToMessage(null)
     setNewMsgId(msgId)
     setTimeout(() => setNewMsgId(null), 2000)
 
@@ -102,16 +143,31 @@ export default function ChatView({ ticket, onOpenPlayerDrawer }) {
     setSendCheckAnim(true)
     setTimeout(() => setSendCheckAnim(false), 800)
 
-    if (!showInternal) setSendAnim(true)
+    if (!internal) {
+      setSendAnim(true)
+
+      // Quick Mode: auto-navigate to next ticket
+      if (quickMode) {
+        setTimeout(() => {
+          const next = getNextPriorityTicket(ticket.id)
+          if (next) {
+            navigate('/tickets/' + next.id)
+          } else {
+            setQuickMode(false)
+          }
+        }, 300)
+      }
+    }
   }
 
   const handleTextChange = (e) => {
     const val = e.target.value
     setText(val)
 
-    // Slash command detection
-    if (val.startsWith('/')) {
-      setSlashQuery(val.slice(1))
+    // Slash commands: detect / or !/ at start
+    const textForSlash = val.startsWith('!') ? val.slice(1) : val
+    if (textForSlash.startsWith('/')) {
+      setSlashQuery(textForSlash.slice(1))
     } else {
       setSlashQuery(null)
     }
@@ -124,7 +180,7 @@ export default function ChatView({ ticket, onOpenPlayerDrawer }) {
   }
 
   const handleKeyDown = (e) => {
-    if (slashQuery !== null) return // let InlineQuickReply handle keys
+    if (slashQuery !== null) return
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault()
       handleSend()
@@ -139,16 +195,13 @@ export default function ChatView({ ticket, onOpenPlayerDrawer }) {
     textareaRef.current?.focus()
   }
 
-  const handleTakeWork = () => {
-    updateTicketStatus(ticket.id, 'in_progress')
-    setTakeWorkFlash(true)
-    setTimeout(() => setTakeWorkFlash(false), 1000)
+  const handleCopyLink = (message) => {
+    const url = `${window.location.origin}${window.location.pathname}#/tickets/${ticket.id}?msg=${message.id}`
+    navigator.clipboard.writeText(url)
   }
 
   return (
-    <div className={`flex flex-col h-full min-w-0 relative transition-shadow duration-1000 ${
-      takeWorkFlash ? 'shadow-[inset_0_0_30px_rgba(229,62,62,0.15)]' : ''
-    }`}>
+    <div className="flex flex-col h-full min-w-0 relative">
       {/* Header */}
       <div className="p-4 border-b border-border flex items-center justify-between bg-bg-surface/50">
         <div className="flex items-center gap-3">
@@ -167,39 +220,54 @@ export default function ChatView({ ticket, onOpenPlayerDrawer }) {
             <span className="text-xs text-text-muted font-mono">{ticket.id}</span>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          {ticket.status === 'open' && (
-            <Button variant="secondary" size="sm" onClick={handleTakeWork}>
-              Взять в работу
-            </Button>
-          )}
-          {ticket.status === 'in_progress' && (
-            <Button variant="ghost" size="sm" onClick={() => updateTicketStatus(ticket.id, 'closed')}>
+        <div className="flex items-center gap-3">
+          <ActiveViewers viewers={activeViewers[ticket.id] || []} />
+          <QuickModeToggle />
+          {ticket.status !== 'closed' && ticket.status !== 'archived' && (
+            <Button variant="ghost" size="sm" onClick={() => onCloseTicket?.(ticket.id)}>
               Закрыть
             </Button>
           )}
         </div>
       </div>
 
-      {/* Chat toggle */}
-      <div className="flex gap-1 px-4 pt-3">
-        <button
-          onClick={() => setShowInternal(false)}
-          className={`px-3 py-1.5 text-xs rounded-lg transition-colors cursor-pointer ${
-            !showInternal ? 'bg-red-primary/15 text-red-light' : 'text-text-muted hover:bg-bg-hover'
-          }`}
-        >
-          Чат
-        </button>
-        <button
-          onClick={() => setShowInternal(true)}
-          className={`px-3 py-1.5 text-xs rounded-lg transition-colors cursor-pointer ${
-            showInternal ? 'bg-warning/15 text-warning' : 'text-text-muted hover:bg-bg-hover'
-          }`}
-        >
-          Внутренний
-        </button>
-      </div>
+      {/* Quick Mode banner */}
+      <AnimatePresence>
+        {quickMode && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="bg-red-primary/8 border-b border-red-primary/20 px-4 py-1.5 flex items-center gap-2 overflow-hidden"
+          >
+            <Zap size={12} className="text-red-light" fill="currentColor" />
+            <span className="text-[11px] text-red-light">Быстрый режим — после ответа автопереход к следующему тикету</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Pinned staff-only banner */}
+      {isPinned && (
+        <div className="bg-warning/8 border-b border-warning/20 px-4 py-1.5 flex items-center gap-2">
+          <Pin size={12} className="text-warning" />
+          <span className="text-[11px] text-warning">Закреплённый диалог — только для персонала</span>
+        </div>
+      )}
+
+      {/* Internal mode indicator (! prefix, non-pinned only) */}
+      <AnimatePresence>
+        {isInternalMode && !isPinned && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="bg-warning/8 border-b border-warning/20 px-4 py-1.5 flex items-center gap-2 overflow-hidden"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-warning" />
+            <span className="text-[11px] text-warning">Внутреннее сообщение — не видно игроку</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Messages */}
       <div
@@ -214,7 +282,14 @@ export default function ChatView({ ticket, onOpenPlayerDrawer }) {
             <ChatBubble
               key={msg.id}
               message={msg}
+              allMessages={ticket.messages}
               isNew={msg.id === newMsgId}
+              isHighlighted={msg.id === highlightMessageId}
+              onReply={setReplyToMessage}
+              onForward={setForwardMessage}
+              onCopyLink={handleCopyLink}
+              platform={ticket.platform}
+              onOpenPlayerDrawer={onOpenPlayerDrawer}
             />
           ))}
         </AnimatePresence>
@@ -241,9 +316,16 @@ export default function ChatView({ ticket, onOpenPlayerDrawer }) {
 
       {/* Input area */}
       <div className="p-4 border-t border-border">
+        {/* Reply preview */}
+        <AnimatePresence>
+          {replyToMessage && (
+            <ReplyPreview message={replyToMessage} onCancel={() => setReplyToMessage(null)} />
+          )}
+        </AnimatePresence>
+
         {/* Quoted text preview */}
         <AnimatePresence>
-          {quotedText && (
+          {quotedText && !replyToMessage && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
@@ -279,17 +361,17 @@ export default function ChatView({ ticket, onOpenPlayerDrawer }) {
               value={text}
               onChange={handleTextChange}
               onKeyDown={handleKeyDown}
-              placeholder={showInternal ? 'Внутренний комментарий...' : 'Написать ответ... (/ для шаблонов)'}
+              placeholder={isPinned ? 'Сообщение для персонала...' : 'Написать ответ... (/ шаблоны, ! внутреннее)'}
               rows={1}
               className={`w-full bg-bg-card border rounded-xl px-4 py-3 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 transition-colors resize-none ${
-                showInternal
+                isInternalMode
                   ? 'border-warning/30 focus:border-warning/50 focus:ring-warning/20'
                   : 'border-border focus:border-red-primary/50 focus:ring-red-primary/20'
               }`}
               style={{ minHeight: '44px', maxHeight: '120px' }}
             />
             <span className="absolute right-3 bottom-1.5 text-[10px] text-text-muted/50">
-              Ctrl+Enter
+              {isPinned ? 'персонал' : isInternalMode ? '! внутреннее' : 'Ctrl+Enter'}
             </span>
           </div>
           <Button
@@ -318,6 +400,12 @@ export default function ChatView({ ticket, onOpenPlayerDrawer }) {
         isOpen={showQuickReply}
         onClose={() => setShowQuickReply(false)}
         onSelect={t => setText(prev => prev + t)}
+      />
+
+      <ForwardMessageModal
+        isOpen={!!forwardMessage}
+        onClose={() => setForwardMessage(null)}
+        message={forwardMessage}
       />
     </div>
   )
