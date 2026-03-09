@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ThumbsUp, Check, Eye, Heart } from 'lucide-react'
 import MessageToolbar from './MessageToolbar'
-import { playerProfiles } from '../../data/mockData'
+import { playerProfiles, getStaffById } from '../../data/mockData'
 
 function formatTime(ts) {
   return new Date(ts).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
@@ -59,8 +59,9 @@ function renderTextWithNicks(text, onNickClick) {
   return parts.length > 0 ? parts : text
 }
 
-export default function ChatBubble({ message, allMessages = [], isNew, isHighlighted, onReply, onForward, onCopyLink, platform, onOpenPlayerDrawer }) {
-  const { from, text, timestamp, isInternal, quotedMessage, forwardedFrom, replyToMessage } = message
+export default function ChatBubble({ message, allMessages = [], isNew, isHighlighted, onReply, onForward, onCopyLink, platform, onOpenPlayerDrawer, isStaffChat }) {
+  const { from, text, timestamp, isInternal, quotedMessage, forwardedFrom, replyToMessage, staffId } = message
+  const staffMember = isStaffChat && staffId ? getStaffById(staffId) : null
   const [activeReactions, setActiveReactions] = useState(new Set())
   const [hovered, setHovered] = useState(false)
 
@@ -141,10 +142,21 @@ export default function ChatBubble({ message, allMessages = [], isNew, isHighlig
                 : 'bg-bg-card text-text-primary rounded-bl-md'
           }`}
         >
-          {isInternal && (
+          {isInternal && !isStaffChat && (
             <span className="text-[10px] text-warning font-medium uppercase tracking-wider block mb-1">
               Внутренний
             </span>
+          )}
+
+          {staffMember && (
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <span className="text-[11px] font-semibold text-text-primary">
+                {staffMember.firstName} {staffMember.lastName[0]}.
+              </span>
+              <span className="text-[10px] text-text-muted">
+                {staffMember.roles[0]}
+              </span>
+            </div>
           )}
 
           {/* Forwarded header */}

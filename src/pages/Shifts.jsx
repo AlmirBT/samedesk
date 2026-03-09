@@ -7,12 +7,14 @@ import ShiftsTimeline from '../components/shifts/ShiftsTimeline'
 import ShiftCard from '../components/shifts/ShiftCard'
 import ActivityLog from '../components/shifts/ActivityLog'
 import ShiftCreateModal from '../components/shifts/ShiftCreateModal'
+import StaffProfileModal from '../components/shifts/StaffProfileModal'
 
 export default function Shifts() {
   const { shifts, shiftLogs } = useApp()
   const todayStr = new Date().toISOString().split('T')[0]
   const [selectedDate, setSelectedDate] = useState(todayStr)
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [selectedStaffId, setSelectedStaffId] = useState(null)
 
   const activeShift = shifts.find(s => s.status === 'active' && s.date === todayStr)
   const dayShifts = shifts.filter(s => s.date === selectedDate)
@@ -24,6 +26,10 @@ export default function Shifts() {
   shifts.forEach(s => {
     shiftsPerDay[s.date] = (shiftsPerDay[s.date] || 0) + 1
   })
+
+  const handleStaffClick = (staffId) => {
+    setSelectedStaffId(staffId)
+  }
 
   return (
     <motion.div
@@ -52,7 +58,7 @@ export default function Shifts() {
         <h3 className="text-sm font-heading font-semibold text-text-secondary mb-3">
           Таймлайн {isToday ? '(сегодня)' : ''}
         </h3>
-        <ShiftsTimeline shifts={dayShifts} isToday={isToday} />
+        <ShiftsTimeline shifts={dayShifts} isToday={isToday} onStaffClick={handleStaffClick} />
       </div>
 
       {/* Shift detail cards */}
@@ -67,7 +73,7 @@ export default function Shifts() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 + i * 0.05 }}
               >
-                <ShiftCard shift={shift} />
+                <ShiftCard shift={shift} onStaffClick={handleStaffClick} />
               </motion.div>
             ))}
           </div>
@@ -87,6 +93,13 @@ export default function Shifts() {
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         selectedDate={selectedDate}
+      />
+
+      {/* Staff profile modal */}
+      <StaffProfileModal
+        isOpen={!!selectedStaffId}
+        onClose={() => setSelectedStaffId(null)}
+        staffId={selectedStaffId}
       />
     </motion.div>
   )

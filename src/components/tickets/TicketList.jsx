@@ -1,21 +1,19 @@
-import { useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useMemo, useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Pin, SlidersHorizontal } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
 import TicketCard from './TicketCard'
-import DensityToggle from './DensityToggle'
 import FilterPanel from './FilterPanel'
 
 export default function TicketList({ tickets, selectedId, onSelect }) {
-  const navigate = useNavigate()
   const {
     pinnedTicketIds, togglePinTicket,
-    ticketDensityMode, setTicketDensityMode,
     savedFilters, setSavedFilters,
     selectedTicketIds, toggleTicketSelection,
     tags,
   } = useApp()
+  const [showFilters, setShowFilters] = useState(false)
+  const filterRef = useRef(null)
 
   const search = savedFilters.search || ''
   const { statuses = [], platforms = [], departments = [] } = savedFilters
@@ -23,6 +21,20 @@ export default function TicketList({ tickets, selectedId, onSelect }) {
   const setSearch = (val) => setSavedFilters(prev => ({ ...prev, search: val }))
 
   const bulkMode = selectedTicketIds.size > 0
+  const hasActiveFilters = (savedFilters.statuses?.length > 0) || (savedFilters.platforms?.length > 0) || (savedFilters.departments?.length > 0)
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handler = (e) => {
+      if (filterRef.current && !filterRef.current.contains(e.target)) {
+        setShowFilters(false)
+      }
+    }
+    if (showFilters) {
+      document.addEventListener('mousedown', handler)
+      return () => document.removeEventListener('mousedown', handler)
+    }
+  }, [showFilters])
 
   const { pinned, unpinned } = useMemo(() => {
     let result = tickets
@@ -80,7 +92,7 @@ export default function TicketList({ tickets, selectedId, onSelect }) {
         ticket={ticket}
         isSelected={selectedId === ticket.id}
         onClick={() => onSelect(ticket.id)}
-        density={ticketDensityMode}
+        density="normal"
         isPinned={pinnedTicketIds.includes(ticket.id)}
         isChecked={selectedTicketIds.has(ticket.id)}
         onTogglePin={togglePinTicket}
@@ -92,8 +104,8 @@ export default function TicketList({ tickets, selectedId, onSelect }) {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header with search and density */}
-      <div className="p-3 border-b border-border flex items-center gap-2">
+      {/* Header with search and filters dropdown */}
+      <div className="p-3 border-b border-border flex items-center gap-2 relative" ref={filterRef}>
         <div className="relative flex-1">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
           <input
@@ -105,17 +117,35 @@ export default function TicketList({ tickets, selectedId, onSelect }) {
           />
         </div>
         <button
-          onClick={() => navigate('/tickets/search')}
-          className="p-2 rounded-lg border border-border hover:bg-bg-hover hover:border-red-primary/30 transition-colors cursor-pointer shrink-0"
-          title="Расширенный поиск"
+          onClick={() => setShowFilters(prev => !prev)}
+          className={`relative p-2 rounded-lg border transition-colors cursor-pointer shrink-0 ${
+            showFilters
+              ? 'border-red-primary/50 bg-red-primary/10 text-red-light'
+              : 'border-border hover:bg-bg-hover hover:border-red-primary/30 text-text-muted'
+          }`}
+          title="Фильтры"
         >
-          <SlidersHorizontal size={14} className="text-text-muted" />
+          <SlidersHorizontal size={14} />
+          {hasActiveFilters && (
+            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-red-primary border-2 border-bg-surface" />
+          )}
         </button>
-        <DensityToggle value={ticketDensityMode} onChange={setTicketDensityMode} />
-      </div>
 
-      {/* Checklist Filters */}
-      <FilterPanel tickets={tickets} />
+        {/* Filters dropdown */}
+        <AnimatePresence>
+          {showFilters && (
+            <motion.div
+              initial={{ opacity: 0, y: -4, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -4, scale: 0.97 }}
+              transition={{ duration: 0.15 }}
+              className="absolute top-full right-3 mt-1 w-72 z-50 bg-bg-card/95 backdrop-blur-xl border border-border rounded-xl shadow-2xl shadow-black/40 overflow-hidden"
+            >
+              <FilterPanel tickets={tickets} onClose={() => setShowFilters(false)} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       {/* List */}
       <div className="flex-1 overflow-y-auto p-2 space-y-1">

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
-import { tickets as mockTickets, staff as mockStaff, shifts as mockShifts, tags as mockTags, roles as mockRoles, tasks as mockTasks, shiftLogs as mockShiftLogs, incidents as mockIncidents } from '../data/mockData'
+import { tickets as mockTickets, staff as mockStaff, shifts as mockShifts, tags as mockTags, roles as mockRoles, tasks as mockTasks, shiftLogs as mockShiftLogs, incidents as mockIncidents, staffTransactions as mockStaffTransactions, STAFF_CHAT_ID } from '../data/mockData'
 import useLocalStorage from '../hooks/useLocalStorage'
 
 const AppContext = createContext(null)
@@ -22,12 +22,47 @@ export function AppProvider({ children }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   const [tickets, setTickets] = useState(mockTickets)
-  const [staffList] = useState(mockStaff)
+  const [staffList, setStaffList] = useState(mockStaff)
   const [shiftList, setShiftList] = useState(mockShifts)
   const [shiftLogList] = useState(mockShiftLogs)
+  const [staffTransactionList, setStaffTransactionList] = useState(mockStaffTransactions)
 
   const addShift = useCallback((shift) => {
     setShiftList(prev => [...prev, { ...shift, id: `shift_${Date.now()}` }])
+  }, [])
+
+  const addStaffTransaction = useCallback((txn) => {
+    const newTxn = { ...txn, id: `txn_${Date.now()}` }
+    setStaffTransactionList(prev => [...prev, newTxn])
+    setStaffList(prev => prev.map(s =>
+      s.id === txn.staffId
+        ? { ...s, balance: (s.balance || 0) + (txn.type === 'bonus' ? txn.amount : -txn.amount) }
+        : s
+    ))
+  }, [])
+
+  const addStaffToShift = useCallback((shiftId, entry) => {
+    setShiftList(prev => prev.map(s =>
+      s.id === shiftId
+        ? { ...s, staffEntries: [...s.staffEntries, entry] }
+        : s
+    ))
+  }, [])
+
+  const removeStaffFromShift = useCallback((shiftId, staffId) => {
+    setShiftList(prev => prev.map(s =>
+      s.id === shiftId
+        ? { ...s, staffEntries: s.staffEntries.filter(e => e.staffId !== staffId) }
+        : s
+    ))
+  }, [])
+
+  const updateShiftStaffEntry = useCallback((shiftId, staffId, changes) => {
+    setShiftList(prev => prev.map(s =>
+      s.id === shiftId
+        ? { ...s, staffEntries: s.staffEntries.map(e => e.staffId === staffId ? { ...e, ...changes } : e) }
+        : s
+    ))
   }, [])
   const [tagList] = useState(mockTags)
   const [roleList] = useState(mockRoles)
@@ -40,7 +75,11 @@ export function AppProvider({ children }) {
   ])
 
   // Ticket-specific state
-  const [pinnedTicketIds, setPinnedTicketIds] = useLocalStorage('pinnedTicketIds', [])
+  const [pinnedTicketIdsRaw, setPinnedTicketIdsRaw] = useLocalStorage('pinnedTicketIds', [])
+  // Staff chat is always pinned
+  const pinnedTicketIds = pinnedTicketIdsRaw.includes(STAFF_CHAT_ID)
+    ? pinnedTicketIdsRaw
+    : [STAFF_CHAT_ID, ...pinnedTicketIdsRaw]
   const [ticketDensityMode, setTicketDensityMode] = useLocalStorage('ticketDensityMode', 'normal')
   const [savedFiltersRaw, setSavedFiltersRaw] = useLocalStorage('savedFilters', { statuses: [], platforms: [], departments: [], search: '' })
   const savedFilters = migrateFilters(savedFiltersRaw)
@@ -98,10 +137,11 @@ export function AppProvider({ children }) {
   }, [])
 
   const togglePinTicket = useCallback((ticketId) => {
-    setPinnedTicketIds(prev =>
+    if (ticketId === STAFF_CHAT_ID) return // Cannot unpin staff chat
+    setPinnedTicketIdsRaw(prev =>
       prev.includes(ticketId) ? prev.filter(id => id !== ticketId) : [...prev, ticketId]
     )
-  }, [setPinnedTicketIds])
+  }, [setPinnedTicketIdsRaw])
 
   const updateTicketPriority = useCallback((ticketId, priority) => {
     setTickets(prev => prev.map(t =>
@@ -222,7 +262,9 @@ export function AppProvider({ children }) {
     isAuthenticated, currentUser, login, logout,
     sidebarCollapsed, toggleSidebar,
     tickets, setTickets, addMessage, updateTicketStatus,
-    staff: staffList, shifts: shiftList, setShiftList, addShift, shiftLogs: shiftLogList, tags: tagList, roles: roleList,
+    staff: staffList, setStaffList, shifts: shiftList, setShiftList, addShift, shiftLogs: shiftLogList, tags: tagList, roles: roleList,
+    staffTransactions: staffTransactionList, addStaffTransaction,
+    addStaffToShift, removeStaffFromShift, updateShiftStaffEntry,
     tasks: taskList, setTaskList,
     incidents: incidentList, setIncidentList, broadcastToIncident, addIncident, updateIncidentStatus, linkTicketToIncident, unlinkTicketFromIncident,
     notifications, markNotificationRead,

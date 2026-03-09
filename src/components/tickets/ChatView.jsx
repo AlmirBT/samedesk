@@ -125,6 +125,7 @@ export default function ChatView({ ticket, onOpenPlayerDrawer, onCloseTicket, hi
       id: msgId,
       ticketId: ticket.id,
       from: 'staff',
+      ...(ticket.isStaffChat && currentUser?.id ? { staffId: currentUser.id } : {}),
       text: msgText,
       attachments: [],
       timestamp: new Date().toISOString(),
@@ -250,7 +251,9 @@ export default function ChatView({ ticket, onOpenPlayerDrawer, onCloseTicket, hi
       {isPinned && (
         <div className="bg-warning/8 border-b border-warning/20 px-4 py-1.5 flex items-center gap-2">
           <Pin size={12} className="text-warning" />
-          <span className="text-[11px] text-warning">Закреплённый диалог — только для персонала</span>
+          <span className="text-[11px] text-warning">
+            {ticket.isStaffChat ? 'Общий чат персонала' : 'Закреплённый диалог — только для персонала'}
+          </span>
         </div>
       )}
 
@@ -290,6 +293,7 @@ export default function ChatView({ ticket, onOpenPlayerDrawer, onCloseTicket, hi
               onCopyLink={handleCopyLink}
               platform={ticket.platform}
               onOpenPlayerDrawer={onOpenPlayerDrawer}
+              isStaffChat={ticket.isStaffChat}
             />
           ))}
         </AnimatePresence>

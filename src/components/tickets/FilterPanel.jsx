@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, X, RotateCcw } from 'lucide-react'
+import { ChevronDown, X, RotateCcw, SearchCode } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
 import PlatformIcon from '../ui/PlatformIcon'
 
@@ -79,7 +80,8 @@ function Checkbox({ checked, onChange, children, count }) {
   )
 }
 
-export default function FilterPanel({ tickets }) {
+export default function FilterPanel({ tickets, onClose }) {
+  const navigate = useNavigate()
   const { savedFilters, setSavedFilters, tags, currentUser } = useApp()
   const [openSections, setOpenSections] = useState({ status: true, departments: false, platform: false })
 
@@ -159,7 +161,7 @@ export default function FilterPanel({ tickets }) {
   }
 
   return (
-    <div className="border-b border-border">
+    <div>
       <FilterSection title="Статус" isOpen={openSections.status} onToggle={() => toggleSection('status')}>
         {statusConfig.map(s => (
           <Checkbox
@@ -212,7 +214,7 @@ export default function FilterPanel({ tickets }) {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="px-3 py-2 flex flex-wrap gap-1 items-center overflow-hidden"
+            className="px-3 py-2 flex flex-wrap gap-1 items-center overflow-hidden border-t border-border/50"
           >
             {statuses.map(s => (
               <span key={s} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-primary/10 text-red-light text-[10px]">
@@ -242,6 +244,20 @@ export default function FilterPanel({ tickets }) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Advanced Search link */}
+      <div className="border-t border-border/50">
+        <button
+          onClick={() => {
+            navigate('/tickets/search')
+            onClose?.()
+          }}
+          className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-text-muted hover:text-red-light hover:bg-bg-hover/50 transition-colors cursor-pointer"
+        >
+          <SearchCode size={13} />
+          <span>Расширенный поиск</span>
+        </button>
+      </div>
     </div>
   )
 }

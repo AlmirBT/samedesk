@@ -28,7 +28,7 @@ export default function CurrentShiftWidget({ shift }) {
   const hours = Math.floor(elapsed / 3600)
   const minutes = Math.floor((elapsed % 3600) / 60)
   const seconds = elapsed % 60
-  const staffMembers = shift.staff.map(id => getStaffById(id)).filter(Boolean)
+  const staffMembers = (shift.staffEntries || []).map(e => getStaffById(e.staffId)).filter(Boolean)
 
   return (
     <motion.div

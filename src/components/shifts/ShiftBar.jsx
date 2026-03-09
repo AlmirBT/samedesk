@@ -44,7 +44,7 @@ export default function ShiftBar({ shift, index = 0 }) {
         <div className="absolute -top-[72px] left-1/2 -translate-x-1/2 z-30 glass-card p-2 text-xs whitespace-nowrap pointer-events-none" style={{ minWidth: '140px' }}>
           <p className="font-medium text-text-primary">{shift.name}</p>
           <p className="text-text-secondary">{shift.startTime} - {shift.endTime}</p>
-          <p className="text-text-muted">{shift.staff.length} сотр. | {shift.payTokens} токенов</p>
+          <p className="text-text-muted">{(shift.staffEntries || []).length} сотр. | {shift.payTokens} токенов</p>
         </div>
       )}
     </motion.div>

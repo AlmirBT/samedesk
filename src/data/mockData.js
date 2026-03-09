@@ -33,42 +33,72 @@ export const staff = [
   {
     id: 'staff_1', login: 'alex_sup', firstName: 'Александр', lastName: 'Петров',
     avatar: null, roles: ['Поддержка'], status: 'online', isTrainee: false, mentorId: null, blockedPlayers: ['player_bad1'],
-    stats: { totalTickets: 142, avgResponseTime: 180, todayTickets: 12 },
+    stats: { totalTickets: 142, avgResponseTime: 180, todayTickets: 12 }, balance: 320,
   },
   {
     id: 'staff_2', login: 'maria_dev', firstName: 'Мария', lastName: 'Иванова',
     avatar: null, roles: ['Разработчик'], status: 'on_shift', isTrainee: false, mentorId: null, blockedPlayers: [],
-    stats: { totalTickets: 89, avgResponseTime: 240, todayTickets: 5 },
+    stats: { totalTickets: 89, avgResponseTime: 240, todayTickets: 5 }, balance: 210,
   },
   {
     id: 'staff_3', login: 'ivan_admin', firstName: 'Иван', lastName: 'Козлов',
     avatar: null, roles: ['Администратор'], status: 'online', isTrainee: false, mentorId: null, blockedPlayers: ['player_bad2', 'player_bad3'],
-    stats: { totalTickets: 256, avgResponseTime: 120, todayTickets: 18 },
+    stats: { totalTickets: 256, avgResponseTime: 120, todayTickets: 18 }, balance: 540,
   },
   {
     id: 'staff_4', login: 'olga_sup', firstName: 'Ольга', lastName: 'Смирнова',
     avatar: null, roles: ['Поддержка'], status: 'offline', isTrainee: false, mentorId: null, blockedPlayers: [],
-    stats: { totalTickets: 198, avgResponseTime: 150, todayTickets: 0 },
+    stats: { totalTickets: 198, avgResponseTime: 150, todayTickets: 0 }, balance: 180,
   },
   {
     id: 'staff_5', login: 'dima_trainee', firstName: 'Дмитрий', lastName: 'Волков',
     avatar: null, roles: ['Сотрудник'], status: 'on_shift', isTrainee: true, mentorId: 'staff_1', blockedPlayers: [],
-    stats: { totalTickets: 23, avgResponseTime: 360, todayTickets: 3 },
+    stats: { totalTickets: 23, avgResponseTime: 360, todayTickets: 3 }, balance: 60,
   },
   {
     id: 'staff_6', login: 'anna_sup', firstName: 'Анна', lastName: 'Морозова',
     avatar: null, roles: ['Поддержка'], status: 'break', isTrainee: false, mentorId: null, blockedPlayers: [],
-    stats: { totalTickets: 167, avgResponseTime: 200, todayTickets: 8 },
+    stats: { totalTickets: 167, avgResponseTime: 200, todayTickets: 8 }, balance: 275,
   },
   {
     id: 'staff_7', login: 'nikita_dev', firstName: 'Никита', lastName: 'Лебедев',
     avatar: null, roles: ['Разработчик', 'Поддержка'], status: 'online', isTrainee: false, mentorId: null, blockedPlayers: [],
-    stats: { totalTickets: 74, avgResponseTime: 300, todayTickets: 2 },
+    stats: { totalTickets: 74, avgResponseTime: 300, todayTickets: 2 }, balance: 150,
   },
 ]
 
+// ==================== STAFF TRANSACTIONS ====================
+export const staffTransactions = [
+  { id: 'txn_1', staffId: 'staff_1', type: 'bonus', amount: 50, reason: 'Отличная работа на смене', date: '2026-03-08', issuedBy: 'staff_3' },
+  { id: 'txn_2', staffId: 'staff_5', type: 'fine', amount: 20, reason: 'Опоздание на смену', date: '2026-03-07', issuedBy: 'staff_3' },
+  { id: 'txn_3', staffId: 'staff_2', type: 'bonus', amount: 30, reason: 'Быстрое закрытие критического бага', date: '2026-03-06', issuedBy: 'staff_3' },
+  { id: 'txn_4', staffId: 'staff_6', type: 'bonus', amount: 40, reason: 'Перевыполнение плана по тикетам', date: '2026-03-05', issuedBy: 'staff_3' },
+  { id: 'txn_5', staffId: 'staff_1', type: 'fine', amount: 15, reason: 'Пропуск внутреннего совещания', date: '2026-03-04', issuedBy: 'staff_3' },
+  { id: 'txn_6', staffId: 'staff_7', type: 'bonus', amount: 25, reason: 'Помощь стажёру на смене', date: '2026-03-03', issuedBy: 'staff_3' },
+  { id: 'txn_7', staffId: 'staff_4', type: 'fine', amount: 30, reason: 'Грубость в переписке с игроком', date: '2026-03-02', issuedBy: 'staff_3' },
+  { id: 'txn_8', staffId: 'staff_3', type: 'bonus', amount: 100, reason: 'Организация ивента для игроков', date: '2026-03-01', issuedBy: 'staff_3' },
+  { id: 'txn_9', staffId: 'staff_5', type: 'bonus', amount: 15, reason: 'Хорошая работа для стажёра', date: '2026-03-08', issuedBy: 'staff_1' },
+  { id: 'txn_10', staffId: 'staff_6', type: 'fine', amount: 10, reason: 'Ранний уход без предупреждения', date: '2026-02-28', issuedBy: 'staff_3' },
+]
+
 // ==================== TICKETS ====================
+export const STAFF_CHAT_ID = 'STAFF-CHAT'
+
 export const tickets = [
+  {
+    id: STAFF_CHAT_ID, userId: null, playerNick: 'Чат персонала', platform: null,
+    status: 'open', priority: 0, tags: [], assignedTo: null,
+    isStaffChat: true,
+    createdAt: '2025-01-01T00:00:00', lastMessage: 'Ребят, кто на смене завтра?',
+    unread: false,
+    messages: [
+      { id: 'staff_msg_001', ticketId: STAFF_CHAT_ID, from: 'staff', staffId: 'staff_3', text: 'Привет всем! Напоминаю — сегодня обновление сервера в 18:00, будьте готовы к наплыву тикетов.', attachments: [], timestamp: '2025-01-15T09:00:00', isInternal: true },
+      { id: 'staff_msg_002', ticketId: STAFF_CHAT_ID, from: 'staff', staffId: 'staff_1', text: 'Принял, буду на месте. Кто ещё сегодня?', attachments: [], timestamp: '2025-01-15T09:05:00', isInternal: true },
+      { id: 'staff_msg_003', ticketId: STAFF_CHAT_ID, from: 'staff', staffId: 'staff_2', text: 'Я тоже. Кстати, по TKT-001 — похоже реально взлом, IP левый.', attachments: [], timestamp: '2025-01-15T09:10:00', isInternal: true },
+      { id: 'staff_msg_004', ticketId: STAFF_CHAT_ID, from: 'staff', staffId: 'staff_1', text: 'Да, я видел. Надо забанить ShadowNinja, логи чистые — это он.', attachments: [], timestamp: '2025-01-15T09:12:00', isInternal: true },
+      { id: 'staff_msg_005', ticketId: STAFF_CHAT_ID, from: 'staff', staffId: 'staff_5', text: 'Ребят, кто на смене завтра?', attachments: [], timestamp: '2025-01-15T09:15:00', isInternal: true },
+    ],
+  },
   {
     id: 'TKT-001', userId: 'player_123', playerNick: 'Murka', platform: 'telegram',
     status: 'open', priority: 5, tags: ['Восстановление', 'Важно'], assignedTo: 'staff_1',
@@ -249,32 +279,154 @@ const _todayStr = _today.toISOString().split('T')[0]
 
 export const shifts = [
   // Today
-  { id: 'shift_1', name: 'Утренняя смена', date: _todayStr, startTime: '08:00', endTime: '12:00', staff: ['staff_5', 'staff_7'], payTokens: 40, status: 'ended' },
-  { id: 'shift_2', name: 'Дневная смена', date: _todayStr, startTime: '12:00', endTime: '18:00', staff: ['staff_1', 'staff_2', 'staff_6'], payTokens: 50, status: 'active' },
-  { id: 'shift_3', name: 'Вечерняя смена', date: _todayStr, startTime: '18:00', endTime: '23:00', staff: ['staff_3', 'staff_4'], payTokens: 60, status: 'scheduled' },
-  { id: 'shift_4', name: 'Ночная смена', date: _todayStr, startTime: '23:00', endTime: '08:00', staff: ['staff_7'], payTokens: 70, status: 'scheduled' },
+  {
+    id: 'shift_1', name: 'Утренняя смена', date: _todayStr, startTime: '08:00', endTime: '12:00', payTokens: 40, status: 'ended',
+    staffEntries: [
+      { staffId: 'staff_5', startTime: '08:00', endTime: '11:00', type: 'early_leave' },
+      { staffId: 'staff_7', startTime: '08:00', endTime: '12:00', type: 'regular' },
+    ],
+  },
+  {
+    id: 'shift_2', name: 'Дневная смена', date: _todayStr, startTime: '12:00', endTime: '18:00', payTokens: 50, status: 'active',
+    staffEntries: [
+      { staffId: 'staff_1', startTime: '12:00', endTime: '18:00', type: 'regular' },
+      { staffId: 'staff_2', startTime: '12:00', endTime: '18:00', type: 'regular' },
+      { staffId: 'staff_6', startTime: '12:00', endTime: '18:00', type: 'regular' },
+      { staffId: 'staff_5', startTime: '14:00', endTime: '18:00', type: 'reinforcement' },
+    ],
+  },
+  {
+    id: 'shift_3', name: 'Вечерняя смена', date: _todayStr, startTime: '18:00', endTime: '23:00', payTokens: 60, status: 'scheduled',
+    staffEntries: [
+      { staffId: 'staff_3', startTime: '18:00', endTime: '23:00', type: 'regular' },
+      { staffId: 'staff_4', startTime: '18:00', endTime: '23:00', type: 'regular' },
+    ],
+  },
+  {
+    id: 'shift_4', name: 'Ночная смена', date: _todayStr, startTime: '23:00', endTime: '08:00', payTokens: 70, status: 'scheduled',
+    staffEntries: [
+      { staffId: 'staff_7', startTime: '23:00', endTime: '08:00', type: 'regular' },
+    ],
+  },
   // Monday
-  { id: 'shift_5', name: 'Утренняя смена', date: _weekDates[0], startTime: '09:00', endTime: '13:00', staff: ['staff_1', 'staff_5'], payTokens: 40, status: 'ended' },
-  { id: 'shift_6', name: 'Дневная смена', date: _weekDates[0], startTime: '13:00', endTime: '19:00', staff: ['staff_2', 'staff_3', 'staff_6'], payTokens: 55, status: 'ended' },
+  {
+    id: 'shift_5', name: 'Утренняя смена', date: _weekDates[0], startTime: '09:00', endTime: '13:00', payTokens: 40, status: 'ended',
+    staffEntries: [
+      { staffId: 'staff_1', startTime: '09:00', endTime: '13:00', type: 'regular' },
+      { staffId: 'staff_5', startTime: '09:00', endTime: '13:00', type: 'regular' },
+    ],
+  },
+  {
+    id: 'shift_6', name: 'Дневная смена', date: _weekDates[0], startTime: '13:00', endTime: '19:00', payTokens: 55, status: 'ended',
+    staffEntries: [
+      { staffId: 'staff_2', startTime: '13:00', endTime: '19:00', type: 'regular' },
+      { staffId: 'staff_3', startTime: '13:00', endTime: '19:00', type: 'regular' },
+      { staffId: 'staff_6', startTime: '13:00', endTime: '17:00', type: 'early_leave' },
+    ],
+  },
   // Tuesday
-  { id: 'shift_7', name: 'Утренняя смена', date: _weekDates[1], startTime: '08:00', endTime: '14:00', staff: ['staff_4', 'staff_7'], payTokens: 45, status: 'ended' },
-  { id: 'shift_8', name: 'Вечерняя смена', date: _weekDates[1], startTime: '17:00', endTime: '23:00', staff: ['staff_1', 'staff_6'], payTokens: 60, status: 'ended' },
+  {
+    id: 'shift_7', name: 'Утренняя смена', date: _weekDates[1], startTime: '08:00', endTime: '14:00', payTokens: 45, status: 'ended',
+    staffEntries: [
+      { staffId: 'staff_4', startTime: '08:00', endTime: '14:00', type: 'regular' },
+      { staffId: 'staff_7', startTime: '08:00', endTime: '14:00', type: 'regular' },
+    ],
+  },
+  {
+    id: 'shift_8', name: 'Вечерняя смена', date: _weekDates[1], startTime: '17:00', endTime: '23:00', payTokens: 60, status: 'ended',
+    staffEntries: [
+      { staffId: 'staff_1', startTime: '17:00', endTime: '23:00', type: 'regular' },
+      { staffId: 'staff_6', startTime: '17:00', endTime: '23:00', type: 'regular' },
+    ],
+  },
   // Wednesday
-  { id: 'shift_9', name: 'Утренняя смена', date: _weekDates[2], startTime: '07:00', endTime: '12:00', staff: ['staff_3', 'staff_5'], payTokens: 40, status: 'ended' },
-  { id: 'shift_10', name: 'Дневная смена', date: _weekDates[2], startTime: '12:00', endTime: '18:00', staff: ['staff_1', 'staff_2', 'staff_7'], payTokens: 50, status: 'ended' },
-  { id: 'shift_11', name: 'Ночная смена', date: _weekDates[2], startTime: '22:00', endTime: '06:00', staff: ['staff_4'], payTokens: 75, status: 'ended' },
+  {
+    id: 'shift_9', name: 'Утренняя смена', date: _weekDates[2], startTime: '07:00', endTime: '12:00', payTokens: 40, status: 'ended',
+    staffEntries: [
+      { staffId: 'staff_3', startTime: '07:00', endTime: '12:00', type: 'regular' },
+      { staffId: 'staff_5', startTime: '07:00', endTime: '12:00', type: 'regular' },
+    ],
+  },
+  {
+    id: 'shift_10', name: 'Дневная смена', date: _weekDates[2], startTime: '12:00', endTime: '18:00', payTokens: 50, status: 'ended',
+    staffEntries: [
+      { staffId: 'staff_1', startTime: '12:00', endTime: '18:00', type: 'regular' },
+      { staffId: 'staff_2', startTime: '12:00', endTime: '18:00', type: 'regular' },
+      { staffId: 'staff_7', startTime: '14:00', endTime: '18:00', type: 'reinforcement' },
+    ],
+  },
+  {
+    id: 'shift_11', name: 'Ночная смена', date: _weekDates[2], startTime: '22:00', endTime: '06:00', payTokens: 75, status: 'ended',
+    staffEntries: [
+      { staffId: 'staff_4', startTime: '22:00', endTime: '06:00', type: 'regular' },
+    ],
+  },
   // Thursday
-  { id: 'shift_12', name: 'Утренняя смена', date: _weekDates[3], startTime: '08:00', endTime: '14:00', staff: ['staff_6', 'staff_7'], payTokens: 45, status: 'ended' },
-  { id: 'shift_13', name: 'Вечерняя смена', date: _weekDates[3], startTime: '16:00', endTime: '22:00', staff: ['staff_1', 'staff_3', 'staff_5'], payTokens: 55, status: 'ended' },
+  {
+    id: 'shift_12', name: 'Утренняя смена', date: _weekDates[3], startTime: '08:00', endTime: '14:00', payTokens: 45, status: 'ended',
+    staffEntries: [
+      { staffId: 'staff_6', startTime: '08:00', endTime: '14:00', type: 'regular' },
+      { staffId: 'staff_7', startTime: '08:00', endTime: '14:00', type: 'regular' },
+    ],
+  },
+  {
+    id: 'shift_13', name: 'Вечерняя смена', date: _weekDates[3], startTime: '16:00', endTime: '22:00', payTokens: 55, status: 'ended',
+    staffEntries: [
+      { staffId: 'staff_1', startTime: '16:00', endTime: '22:00', type: 'regular' },
+      { staffId: 'staff_3', startTime: '16:00', endTime: '22:00', type: 'regular' },
+      { staffId: 'staff_5', startTime: '16:00', endTime: '19:00', type: 'early_leave' },
+    ],
+  },
   // Friday
-  { id: 'shift_14', name: 'Дневная смена', date: _weekDates[4], startTime: '10:00', endTime: '16:00', staff: ['staff_2', 'staff_4', 'staff_6'], payTokens: 50, status: 'ended' },
-  { id: 'shift_15', name: 'Вечерняя смена', date: _weekDates[4], startTime: '18:00', endTime: '00:00', staff: ['staff_1', 'staff_7'], payTokens: 65, status: 'ended' },
+  {
+    id: 'shift_14', name: 'Дневная смена', date: _weekDates[4], startTime: '10:00', endTime: '16:00', payTokens: 50, status: 'ended',
+    staffEntries: [
+      { staffId: 'staff_2', startTime: '10:00', endTime: '16:00', type: 'regular' },
+      { staffId: 'staff_4', startTime: '10:00', endTime: '16:00', type: 'regular' },
+      { staffId: 'staff_6', startTime: '10:00', endTime: '16:00', type: 'regular' },
+    ],
+  },
+  {
+    id: 'shift_15', name: 'Вечерняя смена', date: _weekDates[4], startTime: '18:00', endTime: '00:00', payTokens: 65, status: 'ended',
+    staffEntries: [
+      { staffId: 'staff_1', startTime: '18:00', endTime: '00:00', type: 'regular' },
+      { staffId: 'staff_7', startTime: '18:00', endTime: '00:00', type: 'regular' },
+    ],
+  },
   // Saturday
-  { id: 'shift_16', name: 'Дневная смена', date: _weekDates[5], startTime: '10:00', endTime: '18:00', staff: ['staff_1', 'staff_2', 'staff_3', 'staff_5', 'staff_6'], payTokens: 60, status: 'ended' },
-  { id: 'shift_17', name: 'Ночная смена', date: _weekDates[5], startTime: '22:00', endTime: '06:00', staff: ['staff_7', 'staff_4'], payTokens: 80, status: 'ended' },
+  {
+    id: 'shift_16', name: 'Дневная смена', date: _weekDates[5], startTime: '10:00', endTime: '18:00', payTokens: 60, status: 'ended',
+    staffEntries: [
+      { staffId: 'staff_1', startTime: '10:00', endTime: '18:00', type: 'regular' },
+      { staffId: 'staff_2', startTime: '10:00', endTime: '18:00', type: 'regular' },
+      { staffId: 'staff_3', startTime: '10:00', endTime: '18:00', type: 'regular' },
+      { staffId: 'staff_5', startTime: '10:00', endTime: '15:00', type: 'early_leave' },
+      { staffId: 'staff_6', startTime: '10:00', endTime: '18:00', type: 'regular' },
+    ],
+  },
+  {
+    id: 'shift_17', name: 'Ночная смена', date: _weekDates[5], startTime: '22:00', endTime: '06:00', payTokens: 80, status: 'ended',
+    staffEntries: [
+      { staffId: 'staff_7', startTime: '22:00', endTime: '06:00', type: 'regular' },
+      { staffId: 'staff_4', startTime: '22:00', endTime: '06:00', type: 'regular' },
+    ],
+  },
   // Sunday
-  { id: 'shift_18', name: 'Утренняя смена', date: _weekDates[6], startTime: '09:00', endTime: '15:00', staff: ['staff_3', 'staff_5'], payTokens: 45, status: 'ended' },
-  { id: 'shift_19', name: 'Вечерняя смена', date: _weekDates[6], startTime: '15:00', endTime: '21:00', staff: ['staff_1', 'staff_6', 'staff_7'], payTokens: 55, status: 'ended' },
+  {
+    id: 'shift_18', name: 'Утренняя смена', date: _weekDates[6], startTime: '09:00', endTime: '15:00', payTokens: 45, status: 'ended',
+    staffEntries: [
+      { staffId: 'staff_3', startTime: '09:00', endTime: '15:00', type: 'regular' },
+      { staffId: 'staff_5', startTime: '09:00', endTime: '15:00', type: 'regular' },
+    ],
+  },
+  {
+    id: 'shift_19', name: 'Вечерняя смена', date: _weekDates[6], startTime: '15:00', endTime: '21:00', payTokens: 55, status: 'ended',
+    staffEntries: [
+      { staffId: 'staff_1', startTime: '15:00', endTime: '21:00', type: 'regular' },
+      { staffId: 'staff_6', startTime: '15:00', endTime: '21:00', type: 'regular' },
+      { staffId: 'staff_7', startTime: '17:00', endTime: '21:00', type: 'replacement' },
+    ],
+  },
 ]
 
 // ==================== SHIFT LOGS ====================

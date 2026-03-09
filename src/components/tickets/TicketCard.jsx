@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Star, Check } from 'lucide-react'
+import { Star, Check, MessageSquare } from 'lucide-react'
 import PriorityBar from '../ui/PriorityBar'
 import Avatar from '../ui/Avatar'
 import PlatformIcon from '../ui/PlatformIcon'
@@ -47,14 +47,19 @@ export default function TicketCard({ ticket, isSelected, onClick, density = 'nor
         </div>
 
         {/* Avatar (only in detailed mode) */}
-        {density === 'detailed' && <Avatar nick={ticket.playerNick} size="sm" />}
+        {density === 'detailed' && !ticket.isStaffChat && <Avatar nick={ticket.playerNick} size="sm" />}
+        {ticket.isStaffChat && (
+          <div className="shrink-0 w-8 h-8 rounded-lg bg-warning/15 flex items-center justify-center mt-0.5">
+            <MessageSquare size={14} className="text-warning" />
+          </div>
+        )}
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className={`font-medium truncate ${density === 'compact' ? 'text-xs' : 'text-sm'}`}>
               {ticket.playerNick}
             </span>
-            <PlatformIcon platform={ticket.platform} size={density === 'compact' ? 12 : 14} />
+            {ticket.platform && <PlatformIcon platform={ticket.platform} size={density === 'compact' ? 12 : 14} />}
             <span className="text-[10px] text-text-muted font-mono ml-auto shrink-0">{timeAgo(ticket.createdAt)}</span>
             {ticket.unread && (
               <span className="w-2 h-2 rounded-full bg-red-primary pulse-dot shrink-0" />
@@ -86,17 +91,23 @@ export default function TicketCard({ ticket, isSelected, onClick, density = 'nor
           )}
         </div>
 
-        {/* Pin star */}
-        <button
-          onClick={e => { e.stopPropagation(); onTogglePin?.(ticket.id) }}
-          className={`shrink-0 p-1 rounded transition-all cursor-pointer ${
-            isPinned
-              ? 'text-warning opacity-100'
-              : 'text-text-muted opacity-0 group-hover:opacity-60 hover:!opacity-100'
-          }`}
-        >
-          <Star size={14} fill={isPinned ? 'currentColor' : 'none'} />
-        </button>
+        {/* Pin star (locked for staff chat) */}
+        {ticket.isStaffChat ? (
+          <div className="shrink-0 p-1 text-warning opacity-60" title="Всегда закреплён">
+            <Star size={14} fill="currentColor" />
+          </div>
+        ) : (
+          <button
+            onClick={e => { e.stopPropagation(); onTogglePin?.(ticket.id) }}
+            className={`shrink-0 p-1 rounded transition-all cursor-pointer ${
+              isPinned
+                ? 'text-warning opacity-100'
+                : 'text-text-muted opacity-0 group-hover:opacity-60 hover:!opacity-100'
+            }`}
+          >
+            <Star size={14} fill={isPinned ? 'currentColor' : 'none'} />
+          </button>
+        )}
       </div>
     </motion.div>
   )
